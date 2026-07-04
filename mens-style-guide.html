@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>七日衣品计划</title>
+<style>
+:root{
+  --paper:#F6F5F1; --panel:#FFFFFF; --board:#EDEBE3; --ink:#232A36; --muted:#6E7480;
+  --line:#DDDBD2; --accent:#7E3242; --accent-soft:#F0E4E6; --navy:#2C3B57; --camel:#BE9B69;
+  --ok:#3E7C4F; --shadow:0 1px 2px rgba(35,42,54,.06),0 8px 24px rgba(35,42,54,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#14181F; --panel:#1C222B; --board:#E4E1D6; --ink:#E8E6E0; --muted:#9AA1AC;
+    --line:#2E3644; --accent:#C97A88; --accent-soft:#3A2530; --camel:#C9A97C;
+    --ok:#7CB98C; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="light"]{
+  --paper:#F6F5F1; --panel:#FFFFFF; --board:#EDEBE3; --ink:#232A36; --muted:#6E7480;
+  --line:#DDDBD2; --accent:#7E3242; --accent-soft:#F0E4E6; --camel:#BE9B69;
+  --ok:#3E7C4F; --shadow:0 1px 2px rgba(35,42,54,.06),0 8px 24px rgba(35,42,54,.05);
+}
+:root[data-theme="dark"]{
+  --paper:#14181F; --panel:#1C222B; --board:#E4E1D6; --ink:#E8E6E0; --muted:#9AA1AC;
+  --line:#2E3644; --accent:#C97A88; --accent-soft:#3A2530; --camel:#C9A97C;
+  --ok:#7CB98C; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  font-size:15.5px; line-height:1.75;
+}
+.serif{font-family:Georgia,"Times New Roman","Songti SC","STSong","Noto Serif CJK SC",serif}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:22px;height:54px}
+.brand{font-weight:700;letter-spacing:.02em;white-space:nowrap}
+.brand .dot{color:var(--accent)}
+.nav-links{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav-links a{color:var(--muted);padding:6px 10px;border-radius:6px;font-size:14px;white-space:nowrap}
+.nav-links a:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,transparent);text-decoration:none}
+
+/* ---------- hero ---------- */
+.hero{padding:64px 0 46px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.hero h1{font-size:clamp(30px,5vw,44px);line-height:1.25;margin:12px 0 14px;text-wrap:balance;font-weight:700}
+.hero p.lede{max-width:34em;color:var(--muted);margin:0 0 26px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:600}
+.chain .link{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 16px;box-shadow:var(--shadow)}
+.chain .link:first-child{background:var(--accent);border-color:var(--accent);color:#fff}
+.chain .gt{color:var(--muted);font-family:Georgia,serif}
+.chain-note{font-size:13.5px;color:var(--muted);margin-top:12px}
+
+/* ---------- sections ---------- */
+section{padding:56px 0 8px}
+.sec-head{margin-bottom:26px}
+.sec-head h2{font-size:clamp(23px,3.2vw,30px);margin:8px 0 8px;text-wrap:balance}
+.sec-head p{color:var(--muted);max-width:44em;margin:0}
+
+/* ---------- principles ---------- */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-bottom:40px}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;box-shadow:var(--shadow)}
+.rule h3{margin:0 0 6px;font-size:16px}
+.rule h3 em{font-style:normal;color:var(--accent)}
+.rule p{margin:0;font-size:14px;color:var(--muted)}
+
+/* ---------- plan ---------- */
+.progress-line{display:flex;align-items:center;gap:14px;margin:4px 0 22px;flex-wrap:wrap}
+.pbar{flex:1;min-width:200px;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .35s ease}
+.pnum{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.day>summary{list-style:none;display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;user-select:none}
+.day>summary::-webkit-details-marker{display:none}
+.day-no{font-family:Georgia,"Songti SC",serif;font-size:24px;color:var(--accent);min-width:56px;font-variant-numeric:tabular-nums}
+.day-title{font-weight:700;flex:1}
+.day-title small{display:block;font-weight:400;color:var(--muted);font-size:13px}
+.day-count{font-size:12.5px;color:var(--muted);background:color-mix(in srgb,var(--ink) 6%,transparent);padding:3px 10px;border-radius:99px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.day-count.done{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.day .chev{color:var(--muted);transition:transform .2s}
+.day[open] .chev{transform:rotate(90deg)}
+.day-body{padding:4px 20px 20px;border-top:1px solid var(--line)}
+.day-body h4{margin:20px 0 8px;font-size:15px}
+.day-body p{margin:8px 0;color:var(--muted);font-size:14.5px}
+.day-body ul.plain{margin:6px 0;padding-left:20px;color:var(--muted);font-size:14.5px}
+.checks{display:flex;flex-direction:column;gap:2px;margin:10px 0}
+.check{display:flex;gap:11px;align-items:flex-start;padding:7px 10px;border-radius:8px;cursor:pointer}
+.check:hover{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.check input{margin-top:5px;accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer}
+.check span{font-size:14.5px}
+.check input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--muted) 55%,transparent)}
+.tablebox{overflow-x:auto;margin:10px 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th{font-size:12.5px;letter-spacing:.06em;text-align:left;color:var(--muted);font-weight:600;background:color-mix(in srgb,var(--ink) 4%,transparent)}
+th,td{padding:9px 14px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.buyrow input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.callout{border-left:3px solid var(--camel);background:color-mix(in srgb,var(--camel) 9%,var(--panel));padding:10px 16px;border-radius:0 8px 8px 0;font-size:14px;margin:14px 0}
+.callout b{color:var(--ink)}
+
+/* ---------- outfits ---------- */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:99px;padding:6px 16px;font-size:14px;transition:all .15s}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:600}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.ocard{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s}
+.ocard.sel{border-color:var(--accent)}
+.ocard-head{display:flex;align-items:baseline;gap:10px;padding:15px 18px 0}
+.ocard-head h3{margin:0;font-size:17px;flex:1}
+.pill{font-size:11.5px;padding:2.5px 10px;border-radius:99px;font-weight:600;letter-spacing:.05em;white-space:nowrap}
+.pill.s1{background:#2C3B57;color:#EDF1F7}
+.pill.s2{background:#BE9B6933;color:#8A6F3D}
+.pill.s3{background:var(--accent-soft);color:var(--accent)}
+:root[data-theme="dark"] .pill.s2, .dark-s2{color:#C9A97C}
+.season{font-size:12px;color:var(--muted);white-space:nowrap}
+.board{background:var(--board);margin:13px 18px 0;border-radius:10px;padding:14px 10px 8px;display:flex;justify-content:center;gap:2px;flex-wrap:wrap}
+.piece{display:flex;flex-direction:column;align-items:center;width:66px}
+.piece svg{width:58px;height:58px;display:block}
+.piece i{font-style:normal;font-size:10.5px;color:#6E7480;letter-spacing:.02em;margin-top:2px;white-space:nowrap}
+.ratio{display:flex;height:10px;border-radius:99px;overflow:hidden;margin:13px 18px 0;border:1px solid var(--line)}
+.ratio i{display:block;height:100%}
+.ratio-cap{font-size:11.5px;color:var(--muted);margin:5px 18px 0;letter-spacing:.03em}
+.olist{list-style:none;margin:12px 18px 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.olist li{display:flex;align-items:center;gap:9px;font-size:13.5px}
+.swatch{width:11px;height:11px;border-radius:3px;flex:none;border:1px solid rgba(110,116,128,.35)}
+.otip{font-size:13px;color:var(--muted);margin:12px 18px 0;padding-top:11px;border-top:1px dashed var(--line)}
+.otip b{color:var(--ink);font-weight:600}
+.ocard-foot{padding:14px 18px 16px;margin-top:auto}
+.selbtn{width:100%;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:9px;padding:9px;font-size:14px;font-weight:600;transition:all .15s}
+.selbtn:hover{border-color:var(--accent);color:var(--accent)}
+.selbtn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.seltally{position:sticky;bottom:14px;margin-top:22px;background:var(--ink);color:var(--paper);border-radius:12px;padding:13px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 30px rgba(0,0,0,.25);font-size:14px}
+.seltally b{font-variant-numeric:tabular-nums}
+.seltally .hint{color:color-mix(in srgb,var(--paper) 65%,transparent);font-size:13px}
+.seltally button{margin-left:auto;background:transparent;border:1px solid color-mix(in srgb,var(--paper) 35%,transparent);color:var(--paper);border-radius:8px;padding:5px 14px;font-size:13px}
+.seltally button:hover{border-color:var(--paper)}
+
+/* ---------- profile ---------- */
+.pform{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--shadow)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px;letter-spacing:.03em}
+.field input,.field select{width:100%;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font:inherit;font-size:14px;font-variant-numeric:tabular-nums}
+.field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.ptone{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.tonehint{margin-top:12px;font-size:14px;color:var(--muted);display:none}
+.tonehint.show{display:block}
+.tonehint .cs{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:-2px;margin:0 4px 0 8px;border:1px solid rgba(110,116,128,.35)}
+.saved{font-size:13px;color:var(--ok);margin-top:14px;opacity:0;transition:opacity .3s}
+.saved.show{opacity:1}
+
+/* ---------- mistakes ---------- */
+.mtable td:first-child{color:var(--muted)}
+.mtable td:first-child::before{content:"✕";color:var(--accent);margin-right:9px;font-weight:700}
+.mtable td:last-child::before{content:"→";color:var(--ok);margin-right:9px;font-weight:700}
+
+footer{margin-top:70px;border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:13.5px}
+footer .one{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:6px}
+</style>
+</head>
+<body>
+<nav class="nav"><div class="wrap">
+  <div class="brand serif">七日衣品计划<span class="dot">.</span></div>
+  <div class="nav-links">
+    <a href="#principles">原则</a>
+    <a href="#plan">7 天计划</a>
+    <a href="#outfits">10 套搭配</a>
+    <a href="#profile">身材档案</a>
+    <a href="#mistakes">速查表</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">Men's Style · 7-Day Sprint</div>
+  <h1 class="serif">七天，把衣柜升级成一套系统</h1>
+  <p class="lede">工作日每天约 1 小时，周末各半天。先做减法再做加法，先合身再谈风格。所有勾选进度自动保存在本机，随时回来继续。</p>
+  <div class="chain" role="img" aria-label="优先级：合身高于面料，面料高于配色，配色高于款式，款式高于品牌">
+    <span class="link">合身</span><span class="gt">&gt;</span>
+    <span class="link">面料</span><span class="gt">&gt;</span>
+    <span class="link">配色</span><span class="gt">&gt;</span>
+    <span class="link">款式</span><span class="gt">&gt;</span>
+    <span class="link">品牌</span>
+  </div>
+  <p class="chain-note">把 80% 的精力花在前三项，品味自然显现。</p>
+</div></header>
+
+<section id="principles"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Rules</div>
+    <h2 class="serif">先记住四条铁律</h2>
+    <p>之后每一次购物和搭配，都用这四条来做判断。</p>
+  </div>
+  <div class="rules">
+    <div class="rule"><h3><em>01</em> 肩线对齐是底线</h3><p>肩线正好落在肩点上——这是唯一改不了的尺寸。合身 ≠ 紧身：抬手、坐下、弯腰都不束缚。</p></div>
+    <div class="rule"><h3><em>02</em> 全身不超过 3 种颜色</h3><p>主色 60%（外套/裤子）、辅色 30%（内搭）、点缀色 10%（袜子/表带/围巾）。上下深浅错开。</p></div>
+    <div class="rule"><h3><em>03</em> 正式度不跨档</h3><p>全身单品的正式程度差不超过一档：运动鞋不配西裤，卫衣不配大衣加正装裤。</p></div>
+    <div class="rule"><h3><em>04</em> 只买清单上的东西</h3><p>买前先问：能和衣柜里至少 3 件衣服搭配吗？折扣再大、导购再热情，清单外一律不买。</p></div>
+  </div>
+</div></section>
+
+<section id="plan"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Schedule</div>
+    <h2 class="serif">7 天日程 · 逐项打勾</h2>
+    <p>建议周一开始，周末（第 5、6 天）集中购物。点开每一天查看任务清单。</p>
+  </div>
+  <div class="progress-line">
+    <div class="pbar"><i id="pbarFill"></i></div>
+    <span class="pnum" id="pbarText">0 / 0 项完成</span>
+  </div>
+
+  <details class="day" open>
+    <summary><span class="day-no">01</span><span class="day-title">认知自己<small>约 1 小时 · 产出：身材档案 + 3 色方案 + 场景占比</small></span><span class="day-count" data-daycount="d1"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <p>今天不买任何东西，只建立数据。测量结果直接填进本页的<a href="#profile">「身材档案」</a>，购物时打开手机随时查。</p>
+      <div class="checks" data-day="d1">
+        <label class="check"><input type="checkbox" data-id="d1a"><span>用软尺完成 9 项测量并填入身材档案：肩宽、胸围（腋下最丰满处）、腰围（肚脐水平）、臀围、臂长（肩点到腕骨）、腿内长（裆到脚踝）、领围、脚长（精确到毫米）、身高体重</span></label>
+        <label class="check"><input type="checkbox" data-id="d1b"><span>判断身材类型：倒三角（多数衣服都好穿）／矩形（用叠穿造肩部层次）／椭圆（直筒剪裁 + 深色上装 + V 领，忌横条纹）／瘦高（修身 + 叠穿加体积）／偏矮（上短下长提腰线、九分裤长、同色系拉比例）</span></label>
+        <label class="check"><input type="checkbox" data-id="d1c"><span>自然光下看手腕内侧血管定色调：偏绿 = 暖调（米、驼、橄榄绿、砖红）；偏蓝紫 = 冷调（藏青、灰、纯白、酒红）；分不清 = 中性（低饱和度都行）</span></label>
+        <label class="check"><input type="checkbox" data-id="d1d"><span>选定 2 个中性色 + 1 个点缀色（如：藏青 + 灰 + 酒红），本周购物只围绕这 3 个颜色</span></label>
+        <label class="check"><input type="checkbox" data-id="d1e"><span>列出一周场景占比（通勤 / 休闲 / 运动 / 正式），预算按占比分——占 10% 的场景不值得买 5 套衣服</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">02</span><span class="day-title">清理衣柜<small>1–2 小时 · 产出：精简衣柜 + 缺口清单</small></span><span class="day-count" data-daycount="d2"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <p>把所有衣服摊在床上，逐件过「淘汰四问」，任一为"是"即淘汰：① 12 个月没穿过？② 起球变形发黄？③ 明显不合身（肩线掉落/塞不进/晃荡）？④ 大 logo、夸张图案、廉价印花？</p>
+      <div class="checks" data-day="d2">
+        <label class="check"><input type="checkbox" data-id="d2a"><span>全部衣物摊开，逐件过淘汰四问</span></label>
+        <label class="check"><input type="checkbox" data-id="d2b"><span>状态好的装袋（周末顺路捐赠或挂二手平台）；状态差的进旧衣回收箱</span></label>
+        <label class="check"><input type="checkbox" data-id="d2c"><span>犹豫不决的单独装箱、写上今天日期——3 个月没打开就整箱处理，不要让犹豫拖慢本周</span></label>
+        <label class="check"><input type="checkbox" data-id="d2d"><span>对照第 3 天核心清单，写出缺口清单（缺什么、缺几件）</span></label>
+        <label class="check"><input type="checkbox" data-id="d2e"><span>验收：留下的每一件都合身、干净、且愿意今天就穿出门</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">03</span><span class="day-title">采购清单 + 线上比价<small>约 1 小时 · 产出：带预算的购物指令 + 周末路线</small></span><span class="day-count" data-daycount="d3"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <h4>核心采购清单（勾掉已拥有或已买到的）</h4>
+      <p>第一优先级 · 预算的 50% · 第 5 天必须买齐：</p>
+      <div class="tablebox"><table>
+        <tr><th style="width:44px"></th><th>单品</th><th>数量</th><th>选购要点</th></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p1a" aria-label="纯色T恤"></td><td>纯色 T 恤（白 / 灰 / 藏青）</td><td class="num">3–4 件</td><td>圆领，克重 200g 以上，领口不松垮</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p1b" aria-label="衬衫"></td><td>牛津纺 / 府绸衬衫（白、浅蓝）</td><td class="num">2 件</td><td>肩线对齐肩点，收腰不紧绷</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p1c" aria-label="牛仔裤"></td><td>深色直筒 / 微锥牛仔裤（原色深蓝）</td><td class="num">1–2 条</td><td>无破洞、无水洗做旧、无刺绣</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p1d" aria-label="休闲裤"></td><td>卡其 / 灰色休闲裤（Chino）</td><td class="num">1–2 条</td><td>裤长到鞋面微微一折或九分</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p1e" aria-label="白鞋"></td><td>白色简约皮质休闲鞋</td><td class="num">1 双</td><td>极简无 logo，皮质优于帆布</td></tr>
+      </table></div>
+      <p>第二优先级 · 预算的 30% · 第 5–6 天补齐：</p>
+      <div class="tablebox"><table>
+        <tr><th style="width:44px"></th><th>单品</th><th>数量</th><th>选购要点</th></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p2a" aria-label="毛衣"></td><td>圆领 / V 领羊毛或棉质毛衣（灰 / 藏青）</td><td class="num">1–2 件</td><td>可单穿可叠穿衬衫</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p2b" aria-label="外套"></td><td>休闲西装或大衣（藏青 / 灰 / 驼，按气候）</td><td class="num">1 件</td><td>肩部合体是第一标准</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p2c" aria-label="皮鞋"></td><td>切尔西靴或德比鞋（棕 / 黑）</td><td class="num">1 双</td><td>真皮，配正式与半正式场合</td></tr>
+      </table></div>
+      <p>第三优先级 · 预算的 20% · 第 6 天补齐：</p>
+      <div class="tablebox"><table>
+        <tr><th style="width:44px"></th><th>单品</th><th>数量</th><th>选购要点</th></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p3a" aria-label="皮带"></td><td>皮带（与鞋同色系）</td><td class="num">1–2 条</td><td>宽度 3–3.5cm</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p3b" aria-label="袜子"></td><td>纯色中筒袜</td><td class="num">8–10 双</td><td>跟随裤子或鞋的颜色；扔掉白色运动袜配皮鞋的组合</td></tr>
+        <tr class="buyrow"><td><input type="checkbox" data-id="p3c" aria-label="腕表"></td><td>简约腕表（可选）</td><td class="num">1 块</td><td>表盘 38–42mm，皮带或钢带</td></tr>
+      </table></div>
+      <div class="callout"><b>正装整套</b>（面试 / 婚礼）不强求 7 天内完成——需要量体和修改周期。列入待办，有需求时再买，务必找裁缝修改。</div>
+      <h4>今晚动作</h4>
+      <div class="checks" data-day="d3">
+        <label class="check"><input type="checkbox" data-id="d3a"><span>把缺口逐件写成「品类 + 颜色 + 数量 + 预算上限」</span></label>
+        <label class="check"><input type="checkbox" data-id="d3b"><span>线上浏览比价，每件收藏 2–3 个候选；基础款优先选支持线下试穿或免费退换的品牌</span></label>
+        <label class="check"><input type="checkbox" data-id="d3c"><span>确定第 5 天购物路线（商场 / 门店清单）</span></label>
+        <label class="check"><input type="checkbox" data-id="d3d"><span>记住预算原则：钱花在「穿着频率 × 使用年限」高的单品——鞋、外套、裤子值得贵；T 恤袜子适度即可</span></label>
+        <label class="check"><input type="checkbox" data-id="d3e"><span>背下拒绝清单：尖头皮鞋、大 logo 潮牌、失控 oversize、化纤发亮面料、图案领带，一律不买</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">04</span><span class="day-title">搭配规则（纸上功课）<small>约 1 小时 · 产出：预排 10 套搭配</small></span><span class="day-count" data-daycount="d4"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <p>购物前先建立标准，避免明天在店里被导购和折扣带偏。四个万能公式：</p>
+      <ul class="plain">
+        <li><b>通勤</b>：白/浅蓝衬衫 + 藏青/灰休闲西装 + 卡其/灰 Chino + 德比鞋或白鞋</li>
+        <li><b>周末</b>：纯色 T 恤 + 深色牛仔裤 + 白鞋 +（降温加毛衣或大衣）</li>
+        <li><b>约会</b>：毛衣叠衬衫（露出领子和袖口 1cm）+ Chino + 切尔西靴</li>
+        <li><b>正式</b>：整套西装 + 白衬衫 + 素色领带 + 黑德比 + 同色皮带</li>
+      </ul>
+      <p>叠穿层次：由内到外「薄→厚、浅→深、紧→松」；内搭下摆短于外层；三层封顶，再多显臃肿。</p>
+      <div class="checks" data-day="d4">
+        <label class="check"><input type="checkbox" data-id="d4a"><span>记住配色三铁律：3 色上限 · 60/30/10 · 上下深浅错开</span></label>
+        <label class="check"><input type="checkbox" data-id="d4b"><span>读完四个万能公式和叠穿层次法则</span></label>
+        <label class="check"><input type="checkbox" data-id="d4c"><span>在下方<a href="#outfits">「10 套搭配」</a>里选好自己的模板（通勤 5 · 休闲 3 · 正式 2），或以它为底稿改出自己的版本</span></label>
+        <label class="check"><input type="checkbox" data-id="d4d"><span>对照所选搭配核对采购清单——每件要买的单品都应至少出现在 3 套搭配里</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">05</span><span class="day-title">集中采购日<small>半天 · 产出：第一优先级全部到位</small></span><span class="day-count" data-daycount="d5"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <p>试衣间「合身三查」，每件必做：① 肩线是否正好落在肩点（最重要，改不了）；② 抬手、坐下、弯腰有无束缚或大面积堆叠；③ 侧面和背面照镜子——拍照更客观。</p>
+      <div class="checks" data-day="d5">
+        <label class="check"><input type="checkbox" data-id="d5a"><span>按第 3 天路线扫店，先买齐第一优先级，再看第二优先级</span></label>
+        <label class="check"><input type="checkbox" data-id="d5b"><span>每件做合身三查 + 试衣间拍侧面背面照</span></label>
+        <label class="check"><input type="checkbox" data-id="d5c"><span>需要改裤长的当场问店内是否免费修改；不提供就记下，明天送裁缝</span></label>
+        <label class="check"><input type="checkbox" data-id="d5d"><span>回家把新衣与旧衣混搭试穿一轮——融不进整体的趁吊牌还在立刻退</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">06</span><span class="day-title">配饰、裁缝与仪容<small>半天 · 产出：全套可穿 + 理发完成</small></span><span class="day-count" data-daycount="d6"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <p>仪容是衣品的另一半——同一套衣服，理发前后是两个人。</p>
+      <div class="checks" data-day="d6">
+        <label class="check"><input type="checkbox" data-id="d6a"><span>补齐第二、三优先级：皮带、袜子、皮鞋、毛衣——仍然只买清单上的</span></label>
+        <label class="check"><input type="checkbox" data-id="d6b"><span>所有需要改裤长/收腰的衣物送裁缝（20–50 元的修改比将就穿贵 10 倍的效果都好）</span></label>
+        <label class="check"><input type="checkbox" data-id="d6c"><span>理发：找技术好的理发师说清脸型和需求，此后每 3–4 周固定修剪</span></label>
+        <label class="check"><input type="checkbox" data-id="d6d"><span>修剪眉毛、鼻毛、胡须、指甲；备一瓶基础香水或止汗露（喷 1–2 下，若有若无为佳）</span></label>
+        <label class="check"><input type="checkbox" data-id="d6e"><span>配齐打理工具：鞋刷 + 鞋油、粘毛器、挂烫机（或熨斗）、木质衣架、鞋楦</span></label>
+      </div>
+    </div>
+  </details>
+
+  <details class="day">
+    <summary><span class="day-no">07</span><span class="day-title">搭配模板 + 长期机制<small>1–2 小时 · 产出：10 套拍照存档 + 维护习惯</small></span><span class="day-count" data-daycount="d7"></span><span class="chev">›</span></summary>
+    <div class="day-body">
+      <div class="checks" data-day="d7">
+        <label class="check"><input type="checkbox" data-id="d7a"><span>把选定的 10 套搭配逐套上身、对全身镜拍照，手机相册单独建册——之后每天早上照着穿，不再纠结</span></label>
+        <label class="check"><input type="checkbox" data-id="d7b"><span>一周复盘：哪套效果最好（复制它的逻辑）？哪件后悔（趁 7 天无理由退掉，分析原因）？还有什么缺口（列入下月，一次只补一件）？</span></label>
+        <label class="check"><input type="checkbox" data-id="d7c"><span>建立每日 10 秒镜检习惯：出门前查领口、裤长、鞋面、褶皱</span></label>
+        <label class="check"><input type="checkbox" data-id="d7d"><span>设每周提醒：皮鞋擦油 1 次、白鞋清洁鞋边、衬衫集中熨烫</span></label>
+        <label class="check"><input type="checkbox" data-id="d7e"><span>立下「一进一出」规则：每买一件新衣淘汰一件旧衣，衣柜总量恒定</span></label>
+      </div>
+      <div class="callout"><b>第 2 个月起（可选进阶）</b>：引入第 4 种颜色或纹理（灯芯绒/法兰绒/粗花呢）→ 一次只试一个风格方向（极简 / 美式复古 / 意式休闲 / 日系城市）→ 面料优先纯棉、羊毛、亚麻。身材是衣品上限：每周 2–3 次力量训练 + 站姿挺拔，比任何单品都提升气质。</div>
+    </div>
+  </details>
+</div></section>
+
+<section id="outfits"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Templates</div>
+    <h2 class="serif">10 套搭配 · 直接选用</h2>
+    <p>按「通勤 5 · 休闲 3 · 正式 2」配置，全部由核心清单里的单品组成。点「加入我的模板」收藏，第 7 天照单拍照存档。配色条展示每套的 60/30/10 占比。</p>
+  </div>
+  <div class="filters" id="filters" role="group" aria-label="按场景筛选">
+    <button class="chip on" data-f="全部">全部</button>
+    <button class="chip" data-f="通勤">通勤 · 5</button>
+    <button class="chip" data-f="休闲">休闲 · 3</button>
+    <button class="chip" data-f="正式">正式 · 2</button>
+    <button class="chip" data-f="已选">已选</button>
+  </div>
+  <div class="ogrid" id="ogrid"></div>
+  <div class="seltally" id="seltally">
+    <span>已选 <b id="selCount">0</b> / 10 套</span>
+    <span class="hint" id="selHint">建议凑齐：通勤 5 · 休闲 3 · 正式 2</span>
+    <button id="selClear" type="button">清空</button>
+  </div>
+</div></section>
+
+<section id="profile"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Profile</div>
+    <h2 class="serif">身材档案</h2>
+    <p>第 1 天填好，购物时打开手机随时查。数据只保存在你自己的浏览器里。</p>
+  </div>
+  <div class="pform">
+    <div class="pgrid">
+      <div class="field"><label for="f-height">身高 (cm)</label><input id="f-height" data-k="height" type="number" inputmode="decimal" placeholder="175"></div>
+      <div class="field"><label for="f-weight">体重 (kg)</label><input id="f-weight" data-k="weight" type="number" inputmode="decimal" placeholder="70"></div>
+      <div class="field"><label for="f-shoulder">肩宽 (cm)</label><input id="f-shoulder" data-k="shoulder" type="number" inputmode="decimal" placeholder="46"></div>
+      <div class="field"><label for="f-chest">胸围 (cm)</label><input id="f-chest" data-k="chest" type="number" inputmode="decimal" placeholder="96"></div>
+      <div class="field"><label for="f-waist">腰围 (cm)</label><input id="f-waist" data-k="waist" type="number" inputmode="decimal" placeholder="82"></div>
+      <div class="field"><label for="f-hip">臀围 (cm)</label><input id="f-hip" data-k="hip" type="number" inputmode="decimal" placeholder="98"></div>
+      <div class="field"><label for="f-arm">臂长 (cm)</label><input id="f-arm" data-k="arm" type="number" inputmode="decimal" placeholder="60"></div>
+      <div class="field"><label for="f-inseam">腿内长 (cm)</label><input id="f-inseam" data-k="inseam" type="number" inputmode="decimal" placeholder="78"></div>
+      <div class="field"><label for="f-neck">领围 (cm)</label><input id="f-neck" data-k="neck" type="number" inputmode="decimal" placeholder="39"></div>
+      <div class="field"><label for="f-foot">脚长 (mm)</label><input id="f-foot" data-k="foot" type="number" inputmode="decimal" placeholder="260"></div>
+      <div class="field"><label for="f-shape">身材类型</label><select id="f-shape" data-k="shape">
+        <option value="">选择…</option><option>倒三角</option><option>矩形</option><option>椭圆形</option><option>偏瘦高</option><option>偏矮</option>
+      </select></div>
+      <div class="field"><label for="f-tone">色彩基调</label><select id="f-tone" data-k="tone">
+        <option value="">选择…</option><option value="warm">暖调（血管偏绿）</option><option value="cool">冷调（血管偏蓝紫）</option><option value="neutral">中性（分不清）</option>
+      </select></div>
+    </div>
+    <div class="ptone">
+      <div class="tonehint" id="hint-warm">暖调推荐基础色：米色<span class="cs" style="background:#E4D6BC"></span>驼色<span class="cs" style="background:#BE9B69"></span>橄榄绿<span class="cs" style="background:#6B7048"></span>砖红<span class="cs" style="background:#9E5744"></span>暖棕<span class="cs" style="background:#7A5A3E"></span>——选 2 个中性色 + 1 个点缀色。</div>
+      <div class="tonehint" id="hint-cool">冷调推荐基础色：藏青<span class="cs" style="background:#2C3B57"></span>灰色<span class="cs" style="background:#9CA1A9"></span>纯白<span class="cs" style="background:#F4F3EE"></span>酒红<span class="cs" style="background:#7E3242"></span>冷蓝<span class="cs" style="background:#5E7A9E"></span>——选 2 个中性色 + 1 个点缀色。</div>
+      <div class="tonehint" id="hint-neutral">中性皮肤大多数颜色都可驾驭，优先低饱和度：藏青<span class="cs" style="background:#2C3B57"></span>灰色<span class="cs" style="background:#9CA1A9"></span>燕麦<span class="cs" style="background:#D8CFBC"></span>酒红<span class="cs" style="background:#7E3242"></span>。</div>
+      <div class="saved" id="savedTip">✓ 已保存到本机</div>
+    </div>
+  </div>
+</div></section>
+
+<section id="mistakes"><div class="wrap">
+  <div class="sec-head">
+    <div class="eyebrow">Cheat Sheet</div>
+    <h2 class="serif">常见错误速查</h2>
+  </div>
+  <div class="tablebox" style="background:var(--panel)"><table class="mtable">
+    <tr><th>错误</th><th>纠正</th></tr>
+    <tr><td>衣服买大一号"显壮"</td><td>合身 ≠ 紧身，肩线对齐是底线</td></tr>
+    <tr><td>全身名牌 logo 堆砌</td><td>品味体现在剪裁和面料，不是标识</td></tr>
+    <tr><td>运动鞋配西裤</td><td>全身单品的正式程度差不超过一档</td></tr>
+    <tr><td>白袜配皮鞋</td><td>袜子跟随裤子或鞋的颜色</td></tr>
+    <tr><td>裤脚堆在鞋面上</td><td>改到微微一折或九分，裁缝 20–50 元</td></tr>
+    <tr><td>被折扣带偏买清单外的</td><td>只买清单上的东西，再心动也不买</td></tr>
+    <tr><td>单品好看就买</td><td>先问：能和衣柜里至少 3 件衣服搭配吗？</td></tr>
+  </table></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="one serif">合身 &gt; 面料 &gt; 配色 &gt; 款式 &gt; 品牌</div>
+  <div>七日衣品计划 · 勾选与档案仅存于本机浏览器 · 换设备不同步</div>
+</div></footer>
+
+<script>
+(function(){
+"use strict";
+/* ---------- garment colors ---------- */
+var C={white:'#F4F3EE',lightblue:'#BCD2E4',navy:'#2C3B57',grey:'#9CA1A9',charcoal:'#484C54',
+khaki:'#C3A26E',denim:'#31435F',camel:'#BE9B69',brown:'#77563A',black:'#2A2A2E',oxblood:'#7E3242'};
+var CN={white:'白',lightblue:'浅蓝',navy:'藏青',grey:'灰',charcoal:'炭灰',khaki:'卡其',denim:'原色深蓝',camel:'驼色',brown:'棕',black:'黑',oxblood:'酒红'};
+
+/* ---------- garment glyphs (viewBox 120x120) ---------- */
+var STK='rgba(35,42,54,.25)';
+function svgWrap(inner){return '<svg viewBox="0 0 120 120" aria-hidden="true">'+inner+'</svg>';}
+function g(type,color){
+  var f=' fill="'+color+'" stroke="'+STK+'" stroke-width="1.6" stroke-linejoin="round"';
+  var d=' fill="none" stroke="rgba(35,42,54,.28)" stroke-width="1.6" stroke-linecap="round"';
+  switch(type){
+    case 'tee': return svgWrap('<path'+f+' d="M47 24 L30 30 L17 56 L31 63 L38 49 L38 98 L82 98 L82 49 L89 63 L103 56 L90 30 L73 24 Q60 35 47 24 Z"/>');
+    case 'shirt': return svgWrap('<path'+f+' d="M47 22 L31 28 L21 37 L14 84 L28 88 L36 52 L36 100 L84 100 L84 52 L92 88 L106 84 L99 37 L89 28 L73 22 Q60 34 47 22 Z"/><path fill="rgba(35,42,54,.20)" d="M47 22 L60 36 L73 22 L65 17 L60 24 L55 17 Z"/><path'+d+' d="M60 36 L60 100"/>');
+    case 'blazer': return svgWrap('<path'+f+' d="M60 18 L40 24 L27 34 L20 88 L34 91 L40 60 L40 102 L80 102 L80 60 L86 91 L100 88 L93 34 L80 24 Z"/><path'+d+' d="M60 22 L47 48 L55 100 M60 22 L73 48 L65 100"/><circle cx="60" cy="76" r="1.8" fill="rgba(35,42,54,.4)"/><circle cx="60" cy="86" r="1.8" fill="rgba(35,42,54,.4)"/>');
+    case 'suit': return svgWrap('<path'+f+' d="M60 18 L40 24 L27 34 L20 88 L34 91 L40 60 L40 102 L80 102 L80 60 L86 91 L100 88 L93 34 L80 24 Z"/><path fill="'+C.white+'" stroke="'+STK+'" stroke-width="1.2" d="M60 26 L50 44 L60 82 L70 44 Z"/><path'+d+' d="M60 22 L46 48 L55 100 M60 22 L74 48 L65 100"/>');
+    case 'sweater': return svgWrap('<path'+f+' d="M47 22 L31 28 L21 37 L14 84 L28 88 L36 52 L36 100 L84 100 L84 52 L92 88 L106 84 L99 37 L89 28 L73 22 Q60 34 47 22 Z"/><path fill="rgba(35,42,54,.22)" d="M47 22 Q60 36 73 22 Q60 29 47 22 Z"/><path'+d+' d="M38 93 L82 93 M38 96.5 L82 96.5"/>');
+    case 'coat': return svgWrap('<path'+f+' d="M60 14 L38 20 L25 30 L18 92 L32 95 L38 58 L38 112 L82 112 L82 58 L88 95 L102 92 L95 30 L82 20 Z"/><path'+d+' d="M60 18 L48 42 L56 110 M60 18 L72 42 L64 110"/>');
+    case 'pants': return svgWrap('<path'+f+' d="M40 16 L80 16 L84 62 L86 104 L67 104 L62 58 L58 58 L53 104 L34 104 L36 62 Z"/><path'+d+' d="M40 25 L80 25"/>');
+    case 'sneaker': return svgWrap('<path'+f+' d="M16 76 Q17 64 30 62 L56 57 Q68 55 77 63 L95 73 Q104 77 103 84 L17 84 Z"/><path fill="#D8D6CE" stroke="'+STK+'" stroke-width="1.4" d="M16 84 L104 84 Q104 93 95 93 L25 93 Q16 93 16 84 Z"/><path'+d+' d="M40 62 L44 72 M50 60 L54 70"/>');
+    case 'derby': return svgWrap('<path'+f+' d="M18 78 Q20 68 32 66 L58 62 Q68 60 76 66 L94 74 Q103 78 102 84 L18 84 Z"/><path fill="rgba(35,42,54,.55)" d="M16 84 L104 84 Q104 92 96 92 L24 92 Q16 92 16 84 Z"/><path'+d+' d="M46 66 L50 74 M54 64 L58 72"/>');
+    case 'boot': return svgWrap('<path'+f+' d="M36 38 L68 38 L70 70 Q84 72 96 80 Q103 84 102 90 L32 90 Q27 66 36 38 Z"/><path fill="rgba(35,42,54,.55)" d="M30 90 L104 90 Q104 97 97 97 L37 97 Q30 97 30 90 Z"/><path'+d+' d="M52 44 Q60 50 66 44"/>');
+    case 'tie': return svgWrap('<path'+f+' d="M53 18 L67 18 L63 30 L57 30 Z"/><path'+f+' d="M57 30 L48 74 L60 94 L72 74 L63 30 Z"/>');
+    default: return '';
+  }
+}
+
+/* ---------- outfit data ---------- */
+var OUTFITS=[
+ {id:'o1',name:'标准通勤',scene:'通勤',season:'四季',
+  pieces:[['blazer','navy','休闲西装'],['shirt','white','白衬衫'],['pants','grey','灰 Chino'],['derby','brown','棕德比']],
+  ratio:[['navy',55],['grey',25],['white',15],['brown',5]],
+  items:[['navy','藏青休闲西装'],['white','白色牛津纺衬衫'],['grey','灰色 Chino'],['brown','棕色德比鞋 + 同色皮带']],
+  tip:'最不会出错的一套。藏青主色沉稳，白衬衫提亮，棕色鞋带来暖调点缀——面试之外的一切工作场合都成立。'},
+ {id:'o2',name:'清爽通勤',scene:'通勤',season:'春夏',
+  pieces:[['blazer','grey','休闲西装'],['shirt','lightblue','浅蓝衬衫'],['pants','navy','藏青 Chino'],['sneaker','white','白鞋']],
+  ratio:[['grey',45],['navy',35],['lightblue',15],['white',5]],
+  items:[['grey','灰色休闲西装'],['lightblue','浅蓝府绸衬衫'],['navy','藏青 Chino'],['white','白色皮质休闲鞋']],
+  tip:'灰 + 浅蓝是最干净的冷调组合；白鞋把正式度降半档，适合没有着装要求但要见人的日子。'},
+ {id:'o3',name:'秋冬通勤',scene:'通勤',season:'秋冬',
+  pieces:[['sweater','grey','圆领毛衣'],['shirt','white','白衬衫'],['pants','khaki','卡其 Chino'],['boot','brown','切尔西靴']],
+  ratio:[['grey',45],['khaki',35],['white',12],['brown',8]],
+  items:[['grey','灰色圆领毛衣'],['white','白衬衫（叠穿打底）'],['khaki','卡其 Chino'],['brown','棕色切尔西靴']],
+  tip:'毛衣叠衬衫的关键：领子和袖口各露出约 1cm。灰与卡其一冷一暖，靴子收尾——教科书式的秋冬层次。'},
+ {id:'o4',name:'极简通勤',scene:'通勤',season:'春秋',
+  pieces:[['sweater','navy','毛衣'],['tee','white','白 T 打底'],['pants','grey','灰 Chino'],['sneaker','white','白鞋']],
+  ratio:[['navy',50],['grey',35],['white',15]],
+  items:[['navy','藏青圆领毛衣'],['white','白 T（打底防扎）'],['grey','灰色 Chino'],['white','白色皮质休闲鞋 + 腕表']],
+  tip:'只有两个主色的极简方案，靠面料质感撑住画面——毛衣选羊毛，裤线保持利落，腕表是唯一装饰。'},
+ {id:'o5',name:'休闲星期五',scene:'通勤',season:'四季',
+  pieces:[['blazer','navy','休闲西装'],['tee','white','白 T'],['pants','denim','深色牛仔'],['sneaker','white','白鞋']],
+  ratio:[['navy',45],['denim',35],['white',20]],
+  items:[['navy','藏青休闲西装'],['white','白色重磅 T 恤'],['denim','原色深蓝牛仔裤'],['white','白色皮质休闲鞋']],
+  tip:'西装 + T 恤 + 牛仔是正式与休闲的中间档。牛仔裤必须是无水洗的原色深蓝，否则正式度跨档，整套垮掉。'},
+ {id:'o6',name:'周末基础',scene:'休闲',season:'春夏',
+  pieces:[['tee','white','白 T'],['pants','denim','深色牛仔'],['sneaker','white','白鞋']],
+  ratio:[['denim',55],['white',45]],
+  items:[['white','白色重磅 T 恤（克重 200g+）'],['denim','原色深蓝牛仔裤'],['white','白色皮质休闲鞋']],
+  tip:'三件单品的下限即上限：T 恤领口必须挺括、牛仔裤长九分或微微一折、白鞋干净。任何一处松懈整套就垮。'},
+ {id:'o7',name:'降温外出',scene:'休闲',season:'秋冬',
+  pieces:[['coat','camel','驼色大衣'],['sweater','navy','藏青毛衣'],['pants','khaki','卡其 Chino'],['sneaker','white','白鞋']],
+  ratio:[['camel',50],['khaki',25],['navy',20],['white',5]],
+  items:[['camel','驼色大衣（长度膝上）'],['navy','藏青圆领毛衣'],['khaki','卡其 Chino'],['white','白色皮质休闲鞋']],
+  tip:'驼色 + 藏青是经典的暖冷对撞。大衣长度到膝盖上方、肩部合体——大衣是全身最贵的面积，值得投入。'},
+ {id:'o8',name:'晚间约会',scene:'休闲',season:'秋冬',
+  pieces:[['sweater','grey','毛衣'],['pants','denim','深色牛仔'],['boot','brown','切尔西靴']],
+  ratio:[['denim',45],['grey',45],['brown',10]],
+  items:[['grey','灰色羊毛毛衣'],['denim','原色深蓝牛仔裤'],['brown','棕色切尔西靴']],
+  tip:'比周末装郑重半档、比通勤装松弛半档——约会的正确档位。毛衣贴身但不紧，靴子擦亮，细节即诚意。'},
+ {id:'o9',name:'面试 / 正式',scene:'正式',season:'四季',
+  pieces:[['suit','navy','西装上衣'],['tie','oxblood','酒红领带'],['pants','navy','西装裤'],['derby','black','黑德比']],
+  ratio:[['navy',75],['white',15],['oxblood',7],['black',3]],
+  items:[['navy','藏青整套西装（务必裁缝修改）'],['white','白衬衫'],['oxblood','酒红素色领带'],['black','黑色德比鞋 + 黑皮带']],
+  tip:'正式场合只有一条规则：整套、合身、素色。领带用点缀色酒红，皮带与鞋同为黑色——袜子藏青或黑，禁白袜。'},
+ {id:'o10',name:'婚礼宾客',scene:'正式',season:'四季',
+  pieces:[['suit','charcoal','西装上衣'],['tie','navy','藏青领带'],['pants','charcoal','西装裤'],['derby','black','黑德比']],
+  ratio:[['charcoal',75],['white',15],['navy',7],['black',3]],
+  items:[['charcoal','炭灰整套西装'],['white','白衬衫'],['navy','藏青素色领带'],['black','黑色德比鞋 + 黑皮带']],
+  tip:'炭灰比藏青低调半档，不抢新郎风头又足够郑重。口袋巾可选白色平折——除此之外不加任何装饰。'}
+];
+
+/* ---------- storage ---------- */
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function load(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+
+/* ---------- render outfits ---------- */
+var sel=load('msg7.sel',[]);
+var grid=document.getElementById('ogrid');
+var sceneClass={'通勤':'s1','休闲':'s2','正式':'s3'};
+function render(){
+  var f=document.querySelector('.chip.on').dataset.f;
+  grid.innerHTML='';
+  OUTFITS.forEach(function(o){
+    if(f!=='全部'&&f!=='已选'&&o.scene!==f)return;
+    if(f==='已选'&&sel.indexOf(o.id)<0)return;
+    var isSel=sel.indexOf(o.id)>=0;
+    var card=document.createElement('article');
+    card.className='ocard'+(isSel?' sel':'');
+    var pieces=o.pieces.map(function(p){return '<div class="piece">'+g(p[0],C[p[1]])+'<i>'+p[2]+'</i></div>'}).join('');
+    var ratio=o.ratio.map(function(r){return '<i style="width:'+r[1]+'%;background:'+C[r[0]]+'" title="'+CN[r[0]]+' '+r[1]+'%"></i>'}).join('');
+    var cap=o.ratio.map(function(r){return CN[r[0]]+' '+r[1]+'%'}).join(' · ');
+    var items=o.items.map(function(it){return '<li><span class="swatch" style="background:'+C[it[0]]+'"></span>'+it[1]+'</li>'}).join('');
+    card.innerHTML=
+      '<div class="ocard-head"><h3 class="serif">'+o.name+'</h3><span class="pill '+sceneClass[o.scene]+'">'+o.scene+'</span><span class="season">'+o.season+'</span></div>'+
+      '<div class="board">'+pieces+'</div>'+
+      '<div class="ratio" role="img" aria-label="配色占比 '+cap+'">'+ratio+'</div>'+
+      '<div class="ratio-cap">'+cap+'</div>'+
+      '<ul class="olist">'+items+'</ul>'+
+      '<p class="otip"><b>要点</b> · '+o.tip+'</p>'+
+      '<div class="ocard-foot"><button class="selbtn'+(isSel?' on':'')+'" data-oid="'+o.id+'" type="button" aria-pressed="'+isSel+'">'+(isSel?'✓ 已加入我的模板':'加入我的模板')+'</button></div>';
+    grid.appendChild(card);
+  });
+  tally();
+}
+function tally(){
+  document.getElementById('selCount').textContent=sel.length;
+  var byScene={'通勤':0,'休闲':0,'正式':0};
+  sel.forEach(function(id){var o=OUTFITS.filter(function(x){return x.id===id})[0];if(o)byScene[o.scene]++});
+  var hint=document.getElementById('selHint');
+  if(sel.length===0){hint.textContent='建议凑齐：通勤 5 · 休闲 3 · 正式 2';}
+  else{hint.textContent='当前：通勤 '+byScene['通勤']+'/5 · 休闲 '+byScene['休闲']+'/3 · 正式 '+byScene['正式']+'/2';}
+}
+grid.addEventListener('click',function(e){
+  var btn=e.target.closest('.selbtn');if(!btn)return;
+  var id=btn.dataset.oid,i=sel.indexOf(id);
+  if(i>=0)sel.splice(i,1);else sel.push(id);
+  store('msg7.sel',sel);render();
+});
+document.getElementById('selClear').addEventListener('click',function(){sel=[];store('msg7.sel',sel);render();});
+document.getElementById('filters').addEventListener('click',function(e){
+  var c=e.target.closest('.chip');if(!c)return;
+  document.querySelectorAll('#filters .chip').forEach(function(x){x.classList.remove('on')});
+  c.classList.add('on');render();
+});
+
+/* ---------- task checklist ---------- */
+var tasks=load('msg7.tasks',{});
+var boxes=document.querySelectorAll('input[type=checkbox][data-id]');
+boxes.forEach(function(b){
+  if(tasks[b.dataset.id])b.checked=true;
+  b.addEventListener('change',function(){
+    tasks[b.dataset.id]=b.checked;store('msg7.tasks',tasks);progress();
+  });
+});
+function progress(){
+  var total=boxes.length,done=0;
+  boxes.forEach(function(b){if(b.checked)done++});
+  document.getElementById('pbarFill').style.width=(total?done/total*100:0)+'%';
+  document.getElementById('pbarText').textContent=done+' / '+total+' 项完成';
+  document.querySelectorAll('[data-daycount]').forEach(function(el){
+    var day=el.dataset.daycount;
+    var dayBoxes=document.querySelectorAll('.checks[data-day='+day+'] input');
+    var dd=0;dayBoxes.forEach(function(b){if(b.checked)dd++});
+    el.textContent=dd+' / '+dayBoxes.length;
+    el.classList.toggle('done',dayBoxes.length>0&&dd===dayBoxes.length);
+  });
+}
+
+/* ---------- profile ---------- */
+var profile=load('msg7.profile',{});
+var fields=document.querySelectorAll('[data-k]');
+var savedTip=document.getElementById('savedTip');var savedTimer=null;
+function toneHint(){
+  ['warm','cool','neutral'].forEach(function(t){
+    document.getElementById('hint-'+t).classList.toggle('show',profile.tone===t);
+  });
+}
+fields.forEach(function(f){
+  if(profile[f.dataset.k]!=null)f.value=profile[f.dataset.k];
+  f.addEventListener('change',function(){
+    profile[f.dataset.k]=f.value;store('msg7.profile',profile);toneHint();
+    savedTip.classList.add('show');
+    if(savedTimer)clearTimeout(savedTimer);
+    savedTimer=setTimeout(function(){savedTip.classList.remove('show')},1800);
+  });
+});
+toneHint();progress();render();
+})();
+</script>
+</body>
+</html>
