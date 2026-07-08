@@ -3,15 +3,14 @@
  * =====================================================
  *
  * 用途：
- *   在 "项目规模评估 / 工作量评估" 页面，把表格里每一行的
- *   【系统名称 / 负责人 / 外包人月】抽取出来，按 Tab 分隔生成文本，
+ *   在 "项目规模评估 / 工作量评估" 页面，把表格里每一行抽取成
+ *   【汇总工作量 / 系统名称 / 负责人 / 外包人月】，按 Tab 分隔生成文本，
  *   并自动复制到剪贴板，方便直接粘贴到 Excel / 表格里。
  *
- * 相比手写一行流的改进：
- *   1. 按【表头名称】自动定位列，不再写死列序号，页面列顺序变了也不会错位。
- *   2. 单元格取值优先级：input.value -> a/span 文本 -> 单元格纯文本。
- *   3. 自动合计【外包人月】，并输出汇总行。
- *   4. 复制失败时自动回退到 navigator.clipboard，并把内容打印到控制台。
+ * 规则：
+ *   1. 第一列【汇总工作量】= 所有行"外包人月"的合计；多行时每一行都重复该合计值。
+ *   2. 【系统名称】为空且【类型】是"测试类"时，系统名称默认填 "测试类"。
+ *   3. 单元格取值优先级：input.value -> a/span 文本 -> 单元格纯文本。
  *
  * 使用方法：
  *   1) 打开评估页面，按 F12 打开控制台(Console)。
@@ -20,9 +19,11 @@
  *
  * 可选参数：
  *   exportWorkload({
- *     columns: ['系统名称', '负责人', '外包人月'], // 要导出的列(按表头名匹配)
- *     sumColumn: '外包人月',                        // 需要合计的列
- *     tableIndex: 0,                                // 第几个表格(默认第一个匹配到的)
+ *     columns: ['系统名称', '负责人', '外包人月'], // 除"汇总工作量"外要导出的列
+ *     sumColumn: '外包人月',                        // 用于合计、放到第一列的列
+ *     typeColumn: '类型',                           // 判断是否"测试类"的列
+ *     totalHeader: '汇总工作量',                    // 第一列表头名
+ *     tableIndex: 0,                                // 页面上第几个匹配表格
  *   });
  */
 
@@ -73,6 +74,7 @@
 
   /** 在表头映射里按"包含"匹配列名，返回列序号或 -1。 */
   function findColumn(headerMap, name) {
+    if (!name) return -1;
     if (name in headerMap) return headerMap[name];
     const hit = Object.keys(headerMap).find((h) => h.includes(name));
     return hit ? headerMap[hit] : -1;
@@ -102,6 +104,8 @@
       {
         columns: ['系统名称', '负责人', '外包人月'],
         sumColumn: '外包人月',
+        typeColumn: '类型',
+        totalHeader: '汇总工作量',
         tableIndex: 0,
       },
       options || {}
@@ -115,6 +119,9 @@
 
     const headerMap = buildHeaderMap(table);
     const colIndex = opts.columns.map((c) => findColumn(headerMap, c));
+    const typeIdx = findColumn(headerMap, opts.typeColumn);
+    const sysIdx = opts.columns.indexOf('系统名称');
+    const sumIdx = opts.columns.indexOf(opts.sumColumn);
 
     const missing = opts.columns.filter((c, i) => colIndex[i] < 0);
     if (missing.length) {
@@ -129,40 +136,42 @@
       ? [...table.tBodies].flatMap((tb) => [...tb.rows])
       : [...table.rows].slice(startRow);
 
+    // 第一遍：抽取每行的值 + 累计合计
     let total = 0;
-    const sumIdx = opts.columns.indexOf(opts.sumColumn);
+    const records = [];
+    bodyRows.forEach((row) => {
+      const cells = [...row.cells];
+      const values = colIndex.map((idx) =>
+        idx >= 0 ? cellText(cells[idx]) : ''
+      );
+      // 空行(所有值都为空)直接跳过
+      if (values.every((v) => v === '')) return;
 
-    const lines = bodyRows
-      .map((row) => {
-        const cells = [...row.cells];
-        const values = colIndex.map((idx) =>
-          idx >= 0 ? cellText(cells[idx]) : ''
-        );
-        // 空行(所有值都为空)直接跳过
-        if (values.every((v) => v === '')) return null;
-        if (sumIdx >= 0) total += toNumber(values[sumIdx]);
-        return values.join('\t');
-      })
-      .filter((l) => l !== null);
+      // 测试类且系统名称为空 -> 默认填"测试类"
+      if (sysIdx >= 0 && !values[sysIdx]) {
+        const type = typeIdx >= 0 ? cellText(cells[typeIdx]) : '';
+        if (type.includes('测试')) values[sysIdx] = '测试类';
+      }
 
-    const header = opts.columns.join('\t');
-    const summary =
-      sumIdx >= 0
-        ? '\n合计\t' +
-          opts.columns
-            .map((c, i) => (i === sumIdx ? total.toFixed(2) : ''))
-            .slice(1)
-            .join('\t')
-        : '';
+      if (sumIdx >= 0) total += toNumber(values[sumIdx]);
+      records.push(values);
+    });
 
-    const output = header + '\n' + lines.join('\n') + summary;
+    // 第二遍：把合计放到第一列，多行则每行都带上
+    const totalStr = total.toFixed(2);
+    const lines = records.map((values) => [totalStr].concat(values).join('\t'));
+
+    const header = [opts.totalHeader].concat(opts.columns).join('\t');
+    const output = header + '\n' + lines.join('\n');
 
     copyToClipboard(output).then((ok) => {
       console.log(
         '%c[工作量导出] 共 ' +
           lines.length +
-          ' 行' +
-          (sumIdx >= 0 ? '，' + opts.sumColumn + '合计 ' + total.toFixed(2) : '') +
+          ' 行，' +
+          opts.sumColumn +
+          '合计 ' +
+          totalStr +
           (ok ? '，已复制到剪贴板 ✔' : '，复制失败，请手动复制下方内容 ✖'),
         'color:#2b8a3e;font-weight:bold'
       );
