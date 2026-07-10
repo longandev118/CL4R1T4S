@@ -147,6 +147,13 @@
   font-size: 26rpx;
 }
 
+.load-tip {
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+  padding: 20rpx 0 8rpx;
+}
+
 /* ---- 底部购物车栏 ---- */
 .cart-bar {
   position: fixed;

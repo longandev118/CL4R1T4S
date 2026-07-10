@@ -1,42 +1,60 @@
-import { useEffect, useState } from "react";
-import Taro, { useDidShow } from "@tarojs/taro";
+import { useEffect, useState, useRef } from "react";
+import Taro, { useDidShow, usePullDownRefresh, useReachBottom } from "@tarojs/taro";
 import { View, Text } from "@tarojs/components";
 import { getBanner, getGoodsList } from "../../api/goods";
 import { cartStore } from "../../store/cart";
 import "./index.scss";
 
 const TABS = ["好果报恩", "超值必买", "好吃推荐"];
+const PAGE_SIZE = 3;
 
 export default function Index() {
   const [banner, setBanner] = useState({});
   const [activeTab, setActiveTab] = useState(0);
   const [products, setProducts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [cart, setCart] = useState({ count: 0, total: "0.00" });
+  const pageRef = useRef(1);
+
+  const loadPage = async (tab, page, append = false) => {
+    const { list, hasMore: more } = await getGoodsList(tab, page, PAGE_SIZE);
+    pageRef.current = page;
+    setHasMore(more);
+    setProducts((prev) => (append ? prev.concat(list) : list));
+    setLoadingMore(false);
+  };
 
   useEffect(() => {
     getBanner().then(setBanner);
   }, []);
 
   useEffect(() => {
-    getGoodsList(activeTab).then(setProducts);
+    setProducts([]);
+    setHasMore(true);
+    loadPage(activeTab, 1);
   }, [activeTab]);
 
   const refreshCart = () =>
     setCart({ count: cartStore.count(), total: cartStore.total().toFixed(2) });
-
   useDidShow(refreshCart);
 
-  const addCart = (p) => {
-    cartStore.add({ id: p.id, name: p.name, spec: "默认规格", price: p.price });
-    refreshCart();
-    Taro.showToast({ title: "已加入购物车", icon: "success" });
-  };
+  usePullDownRefresh(async () => {
+    await Promise.all([getBanner().then(setBanner), loadPage(activeTab, 1)]);
+    Taro.stopPullDownRefresh();
+  });
 
+  useReachBottom(() => {
+    if (!hasMore || loadingMore) return;
+    setLoadingMore(true);
+    loadPage(activeTab, pageRef.current + 1, true);
+  });
+
+  const goDetail = (id) => Taro.navigateTo({ url: `/pages/detail/detail?id=${id}` });
   const goCart = () => Taro.switchTab({ url: "/pages/cart/cart" });
 
   return (
     <View className="page">
-      {/* Banner */}
       <View className="banner">
         <View className="banner-header">百果园 好果报恩 第40期</View>
         <View className="banner-card">
@@ -51,7 +69,6 @@ export default function Index() {
         </View>
       </View>
 
-      {/* Tabs */}
       <View className="tabs">
         {TABS.map((t, i) => (
           <View
@@ -64,10 +81,9 @@ export default function Index() {
         ))}
       </View>
 
-      {/* 商品列表 */}
       <View className="product-list">
         {products.map((item) => (
-          <View className="product-card" key={item.id}>
+          <View className="product-card" key={item.id} onClick={() => goDetail(item.id)}>
             <View className="product-img">图</View>
             <View className="product-info">
               <View className="product-name">
@@ -80,16 +96,25 @@ export default function Index() {
                   <Text className="rmb">¥</Text>
                   {item.price}
                 </Text>
-                <View className="btn-primary spec-btn" onClick={() => addCart(item)}>
+                <View
+                  className="btn-primary spec-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goDetail(item.id);
+                  }}
+                >
                   选规格
                 </View>
               </View>
             </View>
           </View>
         ))}
+
+        <View className="load-tip">
+          {loadingMore ? "加载中..." : !hasMore ? "— 没有更多了 —" : ""}
+        </View>
       </View>
 
-      {/* 底部购物车栏 */}
       <View className="cart-bar">
         <View className="cart-icon" onClick={goCart}>
           🛒

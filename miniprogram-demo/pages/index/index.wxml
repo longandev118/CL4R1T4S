@@ -47,6 +47,12 @@
         </view>
       </view>
     </view>
+
+    <!-- 加载更多 / 到底提示 -->
+    <view class="load-tip">
+      <text wx:if="{{loadingMore}}">加载中...</text>
+      <text wx:elif="{{!hasMore}}">— 没有更多了 —</text>
+    </view>
   </view>
 
   <!-- 底部购物车结算栏 -->

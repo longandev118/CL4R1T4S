@@ -35,9 +35,12 @@ taro-version/
     ├── api/goods.js         # 接口层（useMock 开关，真/假数据切换）
     ├── store/cart.js        # 全局购物车（发布订阅，跨页面共享）
     └── pages/
-        ├── index/           # 首页：Banner + Tab + 商品卡片 + 购物车栏
+        ├── index/           # 首页：Banner + Tab + 卡片 + 下拉刷新 + 分页加载
+        ├── detail/          # 商品详情页（Swiper + 规格弹层 + 加购/购买）
         └── cart/            # 购物车页
 ```
+
+> 下拉刷新/分页用 Taro 的 `usePullDownRefresh` / `useReachBottom` hooks，页面配置里开 `enablePullDownRefresh`。
 
 ## 与原生版的对应关系
 

@@ -1,5 +1,5 @@
 export default {
-  pages: ["pages/index/index", "pages/cart/cart"],
+  pages: ["pages/index/index", "pages/detail/detail", "pages/cart/cart"],
   window: {
     navigationBarBackgroundColor: "#e4393c",
     navigationBarTextStyle: "white",

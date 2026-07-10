@@ -32,17 +32,40 @@ miniprogram-demo/
 ├── mock/data.js    # 本地 mock 数据（useMock=true 时用）
 ├── project.config.json
 ├── sitemap.json
+├── cloudfunctions/   # 微信云开发云函数（dataSource="cloud" 时用）
+│   ├── getBanner/  getGoods/  getGoodsDetail/  createOrder/
 └── pages/
-    ├── index/      # 首页（活动页，复刻截图）
+    ├── index/      # 首页：下拉刷新 + 分页加载
     ├── detail/     # 商品详情页（轮播图 + 规格选择弹层 + 加购/购买）
     └── cart/       # 购物车页
 ```
 
-## 接口层怎么用
+## 接口层怎么用（三种数据源）
 
-- `config.js` 里 `useMock: true` → 用 `mock/data.js` 本地数据，**无需后端就能跑**。
-- 有后端后改成 `useMock: false`，并把 `baseURL` 换成你的域名（需在小程序后台配置 request 合法域名）。
-- 页面统一调 `api/goods.js`（如 `api.getGoodsList(tab)`），底层走 `utils/request.js`，切换真假数据对页面无感。
+`config.js` 里 `dataSource` 三选一，切换对页面代码**完全无感**：
+
+| dataSource | 说明 | 需要什么 |
+| --- | --- | --- |
+| `"mock"` | 本地假数据 `mock/data.js` | 无，直接跑 |
+| `"http"` | `wx.request` 请求 `baseURL` | 传统后端 + 配置 request 合法域名 |
+| `"cloud"` | 调 `cloudfunctions/` 里的云函数 | 开通微信云开发，填 `cloudEnv` |
+
+页面统一调 `api/goods.js`（如 `api.getGoodsList(tab, page)`），底层自动分流。
+
+## 微信云开发（免服务器）
+
+`cloudfunctions/` 下有 4 个云函数：`getBanner` / `getGoods` / `getGoodsDetail` / `createOrder`。
+
+用法：
+1. 微信开发者工具右上角开通「云开发」，创建环境，把环境 ID 填到 `config.js` 的 `cloudEnv`，并把 `dataSource` 改成 `"cloud"`。
+2. 右键 `cloudfunctions/getGoods` → **上传并部署（云端安装依赖）**，四个函数各传一次。
+3. `createOrder` 里演示了用 `cloud.getWXContext()` 自动拿用户 `openid`，注释里给了写云数据库 + 对接微信支付的位置。
+
+## 下拉刷新 & 分页加载
+
+首页已开启：
+- **下拉刷新**（`index.json` 的 `enablePullDownRefresh` + `onPullDownRefresh`）
+- **上拉触底加载下一页**（`onReachBottom`，每页 3 条，底部显示"加载中/没有更多了"）
 
 ## 四、代码里做了什么
 
