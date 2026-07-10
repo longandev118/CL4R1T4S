@@ -1,0 +1,110 @@
+.mine {
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* 头部 */
+.header {
+  background: #e4393c;
+  padding: 60rpx 32rpx 48rpx;
+  display: flex;
+  align-items: center;
+}
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #fff;
+}
+.avatar.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e4393c;
+  font-size: 26rpx;
+}
+.user-text {
+  margin-left: 24rpx;
+  color: #fff;
+}
+.nick {
+  font-size: 34rpx;
+  font-weight: bold;
+}
+.openid {
+  font-size: 22rpx;
+  opacity: 0.85;
+  margin-top: 8rpx;
+}
+.btn-login {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+/* 订单卡片 */
+.card {
+  background: #fff;
+  margin: -24rpx 24rpx 0;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  position: relative;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-title {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+.card-more {
+  color: #999;
+  font-size: 24rpx;
+}
+.order-nav {
+  display: flex;
+  margin-top: 28rpx;
+}
+.order-nav-item {
+  flex: 1;
+  text-align: center;
+  font-size: 24rpx;
+  color: #666;
+}
+.order-nav-item .icon {
+  font-size: 48rpx;
+  margin-bottom: 8rpx;
+}
+
+/* 功能菜单 */
+.menu {
+  background: #fff;
+  margin: 24rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 28rpx;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #f2f2f2;
+}
+.menu-item:last-child {
+  border-bottom: none;
+}
+.arrow {
+  color: #ccc;
+}
+
+.logout {
+  margin: 40rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  text-align: center;
+  padding: 28rpx;
+  color: #e4393c;
+  font-size: 30rpx;
+}

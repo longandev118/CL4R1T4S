@@ -1,0 +1,218 @@
+.page {
+  padding-bottom: 120rpx; /* 给底部购物车栏留位置 */
+}
+
+/* ---- 搜索入口 ---- */
+.search-bar-wrap {
+  background: #e4393c;
+  padding: 16rpx 24rpx 0;
+}
+.search-entry {
+  background: #fff;
+  border-radius: 999rpx;
+  padding: 14rpx 24rpx;
+  display: flex;
+  align-items: center;
+  color: #999;
+}
+.se-icon {
+  font-size: 26rpx;
+  margin-right: 12rpx;
+}
+.se-text {
+  font-size: 26rpx;
+  flex: 1;
+}
+
+/* ---- Banner ---- */
+.banner {
+  background: #e4393c;
+  padding: 24rpx 24rpx 40rpx;
+}
+.banner-header {
+  color: #fff;
+  font-size: 40rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+.banner-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+}
+.banner-title {
+  font-size: 44rpx;
+  font-weight: bold;
+}
+.banner-sub {
+  color: #666;
+  font-size: 26rpx;
+  margin: 12rpx 0 20rpx;
+}
+.banner-price-row {
+  display: flex;
+  align-items: baseline;
+}
+.old-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 26rpx;
+  margin-right: 12rpx;
+}
+.big-price {
+  font-size: 64rpx;
+  font-weight: bold;
+}
+.unit {
+  color: #999;
+  font-size: 24rpx;
+  margin-left: 8rpx;
+}
+.banner-period {
+  color: #e4393c;
+  font-size: 22rpx;
+  margin-top: 16rpx;
+}
+
+/* ---- Tabs ---- */
+.tabs {
+  display: flex;
+  background: #fff;
+  padding: 8rpx 0;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 20rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+.tab-active {
+  color: #e4393c;
+  font-weight: bold;
+}
+.tab-active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  background: #e4393c;
+  border-radius: 6rpx;
+}
+
+/* ---- 商品卡片 ---- */
+.product-list {
+  padding: 16rpx;
+}
+.product-card {
+  display: flex;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+.product-img {
+  width: 160rpx;
+  height: 160rpx;
+  background: #f0f0f0;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+.product-info {
+  flex: 1;
+  margin-left: 20rpx;
+  display: flex;
+  flex-direction: column;
+}
+.product-name {
+  font-size: 28rpx;
+  line-height: 1.4;
+}
+.product-tag {
+  background: #e4393c;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+  margin-right: 8rpx;
+}
+.product-desc {
+  color: #999;
+  font-size: 24rpx;
+  margin: 10rpx 0;
+}
+.product-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.price {
+  font-weight: bold;
+  font-size: 36rpx;
+}
+.rmb {
+  font-size: 24rpx;
+}
+.spec-btn {
+  padding: 12rpx 28rpx;
+  font-size: 26rpx;
+}
+
+.load-tip {
+  text-align: center;
+  color: #999;
+  font-size: 24rpx;
+  padding: 20rpx 0 8rpx;
+}
+
+/* ---- 底部购物车栏 ---- */
+.cart-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100rpx;
+  background: #fff;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+}
+.cart-icon {
+  font-size: 44rpx;
+  position: relative;
+  margin-right: 20rpx;
+}
+.cart-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -12rpx;
+  background: #e4393c;
+  color: #fff;
+  font-size: 20rpx;
+  min-width: 30rpx;
+  height: 30rpx;
+  line-height: 30rpx;
+  text-align: center;
+  border-radius: 999rpx;
+  padding: 0 6rpx;
+}
+.cart-total {
+  flex: 1;
+  font-size: 28rpx;
+}
+.checkout-btn {
+  padding: 18rpx 60rpx;
+  font-size: 30rpx;
+}

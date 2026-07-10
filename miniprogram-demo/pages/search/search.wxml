@@ -1,0 +1,47 @@
+<view class="search">
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="input-box">
+      <text class="s-icon">🔍</text>
+      <input
+        class="s-input"
+        placeholder="搜索水果 / 品类"
+        value="{{keyword}}"
+        confirm-type="search"
+        bindinput="onInput"
+        bindconfirm="doSearch"
+        focus
+      />
+    </view>
+    <view class="s-btn" bindtap="doSearch">搜索</view>
+  </view>
+
+  <!-- 热门搜索（未搜索时展示） -->
+  <view wx:if="{{!searched}}" class="hot">
+    <view class="hot-title">热门搜索</view>
+    <view class="hot-words">
+      <view
+        class="hot-word"
+        wx:for="{{hotWords}}"
+        wx:key="*this"
+        data-word="{{item}}"
+        bindtap="onHotTap"
+      >{{item}}</view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <block wx:if="{{searched}}">
+    <view wx:if="{{results.length === 0}}" class="empty">没有找到相关商品</view>
+    <view class="result-card" wx:for="{{results}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="r-img">图</view>
+      <view class="r-info">
+        <view class="r-name"><text class="r-tag">{{item.tag}}</text>{{item.name}}</view>
+        <view class="r-desc">{{item.desc}}</view>
+        <view class="r-price price">¥{{item.price}}</view>
+      </view>
+    </view>
+  </block>
+
+</view>

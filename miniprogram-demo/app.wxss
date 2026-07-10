@@ -1,0 +1,16 @@
+/* 全局样式 */
+page {
+  background: #f5f5f5;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  color: #333;
+}
+
+.price {
+  color: #e4393c;
+}
+
+.btn-primary {
+  background: #e4393c;
+  color: #fff;
+  border-radius: 999rpx;
+}

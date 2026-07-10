@@ -1,0 +1,14 @@
+{
+  "description": "百果园风格电商小程序示例",
+  "appid": "touristappid",
+  "projectname": "miniprogram-demo",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "latest"
+}
