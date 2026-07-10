@@ -66,6 +66,10 @@ Page({
     wx.navigateTo({ url: `/pages/detail/detail?id=${id}` });
   },
 
+  goSearch() {
+    wx.navigateTo({ url: "/pages/search/search" });
+  },
+
   refreshCart() {
     const cart = app.globalData.cart;
     this.setData({

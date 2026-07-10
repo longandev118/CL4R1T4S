@@ -1,0 +1,43 @@
+<view class="orders">
+
+  <!-- 状态切换 -->
+  <view class="status-tabs">
+    <view
+      wx:for="{{statusTabs}}"
+      wx:key="key"
+      class="status-tab {{active === item.key ? 'active' : ''}}"
+      data-key="{{item.key}}"
+      bindtap="onSwitch"
+    >{{item.label}}</view>
+  </view>
+
+  <!-- 空态 -->
+  <view wx:if="{{orders.length === 0}}" class="empty">
+    <view>暂无订单</view>
+    <view class="go-buy" bindtap="goIndex">去逛逛 ›</view>
+  </view>
+
+  <!-- 订单列表 -->
+  <view class="order-card" wx:for="{{orders}}" wx:key="orderId">
+    <view class="order-head">
+      <text class="order-no">订单号 {{item.orderId}}</text>
+      <text class="order-status">{{item.statusText}}</text>
+    </view>
+    <view class="order-goods" wx:for="{{item.items}}" wx:for-item="g" wx:key="id">
+      <view class="g-img">图</view>
+      <view class="g-info">
+        <view class="g-name">{{g.name}}</view>
+        <view class="g-spec">{{g.spec}}</view>
+      </view>
+      <view class="g-right">
+        <view class="g-price">¥{{g.price}}</view>
+        <view class="g-count">x{{g.count}}</view>
+      </view>
+    </view>
+    <view class="order-foot">
+      <text class="foot-time">{{item.createdAt}}</text>
+      <text class="foot-total">共{{item.totalCount}}件 合计 <text class="price">¥{{item.amount}}</text></text>
+    </view>
+  </view>
+
+</view>

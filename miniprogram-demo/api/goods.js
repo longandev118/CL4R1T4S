@@ -9,9 +9,7 @@ function mockResolve(data, delay = 200) {
 
 // 走微信云开发：调用云函数
 function callCloud(name, data) {
-  return wx.cloud
-    .callFunction({ name, data })
-    .then((res) => res.result);
+  return wx.cloud.callFunction({ name, data }).then((res) => res.result);
 }
 
 // 首页活动 Banner
@@ -39,13 +37,70 @@ function getGoodsDetail(id) {
   return request(`/goods/${id}`);
 }
 
-// 提交订单
-function createOrder(items) {
+// 关键词搜索商品
+function searchGoods(keyword) {
   if (config.dataSource === "mock") {
-    return mockResolve({ orderId: "MOCK_" + items.length });
+    const kw = (keyword || "").trim();
+    const all = mock.allGoods();
+    const list = kw ? all.filter((g) => g.name.includes(kw) || g.desc.includes(kw)) : [];
+    return mockResolve(list, 150);
+  }
+  if (config.dataSource === "cloud") return callCloud("searchGoods", { keyword });
+  return request("/search", { data: { keyword } });
+}
+
+// 微信登录：换取 openid（云开发用云函数，http 用 wx.login+后端）
+function login() {
+  if (config.dataSource === "mock") {
+    return mockResolve({ openid: "mock_openid_8888" });
+  }
+  if (config.dataSource === "cloud") return callCloud("login", {});
+  return new Promise((resolve, reject) => {
+    wx.login({
+      success: (r) =>
+        request("/login", { method: "POST", data: { code: r.code } }).then(resolve, reject),
+      fail: reject
+    });
+  });
+}
+
+// 提交订单（mock 下写入本地 storage 以便"我的订单"能看到）
+function createOrder(items) {
+  const amount = items.reduce((s, i) => s + i.price * i.count, 0);
+  if (config.dataSource === "mock") {
+    const order = {
+      orderId: "MOCK_" + Date.now(),
+      items,
+      amount: +amount.toFixed(2),
+      status: "pending", // 待收货
+      createdAt: new Date().toLocaleString()
+    };
+    const all = wx.getStorageSync("orders") || [];
+    all.unshift(order);
+    wx.setStorageSync("orders", all);
+    return mockResolve({ orderId: order.orderId });
   }
   if (config.dataSource === "cloud") return callCloud("createOrder", { items });
   return request("/order", { method: "POST", data: { items } });
 }
 
-module.exports = { getBanner, getGoodsList, getGoodsDetail, createOrder };
+// 我的订单（按状态过滤，status: all/unpaid/pending/done）
+function getOrders(status = "all") {
+  if (config.dataSource === "mock") {
+    const all = wx.getStorageSync("orders") || [];
+    const list = status === "all" ? all : all.filter((o) => o.status === status);
+    return mockResolve(list);
+  }
+  if (config.dataSource === "cloud") return callCloud("getOrders", { status });
+  return request("/orders", { data: { status } });
+}
+
+module.exports = {
+  getBanner,
+  getGoodsList,
+  getGoodsDetail,
+  searchGoods,
+  login,
+  createOrder,
+  getOrders
+};

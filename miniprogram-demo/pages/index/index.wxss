@@ -2,6 +2,28 @@
   padding-bottom: 120rpx; /* 给底部购物车栏留位置 */
 }
 
+/* ---- 搜索入口 ---- */
+.search-bar-wrap {
+  background: #e4393c;
+  padding: 16rpx 24rpx 0;
+}
+.search-entry {
+  background: #fff;
+  border-radius: 999rpx;
+  padding: 14rpx 24rpx;
+  display: flex;
+  align-items: center;
+  color: #999;
+}
+.se-icon {
+  font-size: 26rpx;
+  margin-right: 12rpx;
+}
+.se-text {
+  font-size: 26rpx;
+  flex: 1;
+}
+
 /* ---- Banner ---- */
 .banner {
   background: #e4393c;

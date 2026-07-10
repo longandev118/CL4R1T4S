@@ -33,12 +33,23 @@ miniprogram-demo/
 ├── project.config.json
 ├── sitemap.json
 ├── cloudfunctions/   # 微信云开发云函数（dataSource="cloud" 时用）
-│   ├── getBanner/  getGoods/  getGoodsDetail/  createOrder/
+│   ├── getBanner/  getGoods/  getGoodsDetail/  searchGoods/
+│   ├── login/      # 返回 openid
+│   ├── createOrder/  getOrders/   # 下单 + 我的订单
 └── pages/
-    ├── index/      # 首页：下拉刷新 + 分页加载
+    ├── index/      # 首页：搜索入口 + 下拉刷新 + 分页加载
+    ├── search/     # 搜索页（热门词 + 结果列表）
     ├── detail/     # 商品详情页（轮播图 + 规格选择弹层 + 加购/购买）
-    └── cart/       # 购物车页
+    ├── cart/       # 购物车页
+    ├── orders/     # 我的订单（全部/待付款/待收货/已完成）
+    └── mine/       # 我的（微信登录 + 订单入口 + 功能菜单）
 ```
+
+## 微信登录 & 我的订单 & 搜索
+
+- **微信登录**：`mine` 页点"微信登录"→ `wx.getUserProfile` 拿头像昵称（必须在点击事件里直接调用），再 `api.login()` 换 `openid`（云开发走 `login` 云函数，http 走 `wx.login`+后端）。登录态存 `storage`，下次自动恢复。
+- **我的订单**：结算成功后写入订单（mock 存本地 `storage`，cloud 写 `orders` 集合）；`orders` 页按 `全部/待付款/待收货/已完成` 状态过滤。
+- **搜索**：`search` 页支持关键词 + 热门词，`api.searchGoods(kw)` 按名称/描述过滤。
 
 ## 接口层怎么用（三种数据源）
 

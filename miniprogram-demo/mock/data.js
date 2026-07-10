@@ -103,4 +103,9 @@ function getDetail(id) {
   };
 }
 
-module.exports = { banner, goodsList, goodsDetail, pageGoods, getDetail };
+// 全部商品打平成一维数组（供搜索用）
+function allGoods() {
+  return Object.keys(goodsList).reduce((arr, k) => arr.concat(goodsList[k]), []);
+}
+
+module.exports = { banner, goodsList, goodsDetail, pageGoods, getDetail, allGoods };
