@@ -1,0 +1,31 @@
+{
+  "name": "taro-pagoda-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "百果园风格电商小程序 - Taro (React) 版本",
+  "templateInfo": {
+    "name": "default",
+    "typescript": false,
+    "css": "sass"
+  },
+  "scripts": {
+    "dev:weapp": "taro build --type weapp --watch",
+    "build:weapp": "taro build --type weapp",
+    "dev:h5": "taro build --type h5 --watch",
+    "build:h5": "taro build --type h5"
+  },
+  "dependencies": {
+    "@tarojs/components": "3.6.23",
+    "@tarojs/plugin-framework-react": "3.6.23",
+    "@tarojs/react": "3.6.23",
+    "@tarojs/runtime": "3.6.23",
+    "@tarojs/taro": "3.6.23",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@tarojs/cli": "3.6.23",
+    "@tarojs/webpack5-runner": "3.6.23",
+    "babel-preset-taro": "3.6.23"
+  }
+}

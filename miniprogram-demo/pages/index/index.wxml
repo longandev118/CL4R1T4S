@@ -30,7 +30,7 @@
 
   <!-- 商品列表 -->
   <view class="product-list">
-    <view class="product-card" wx:for="{{products}}" wx:key="id">
+    <view class="product-card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
       <view class="product-img">图</view>
       <view class="product-info">
         <view class="product-name">
@@ -41,8 +41,8 @@
           <text class="price"><text class="rmb">¥</text>{{item.price}}</text>
           <view
             class="btn-primary spec-btn"
-            data-product="{{item}}"
-            bindtap="onAddCart"
+            data-id="{{item.id}}"
+            catchtap="goDetail"
           >选规格</view>
         </view>
       </view>

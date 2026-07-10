@@ -1,0 +1,69 @@
+<view class="detail" wx:if="{{detail}}">
+
+  <!-- 顶部轮播图 -->
+  <swiper class="banner" indicator-dots autoplay circular bindchange="onSwiperChange">
+    <swiper-item wx:for="{{detail.banner}}" wx:key="*this">
+      <view class="banner-img">{{item}}</view>
+    </swiper-item>
+  </swiper>
+
+  <!-- 价格与标题 -->
+  <view class="head">
+    <view class="price-row">
+      <text class="price"><text class="rmb">¥</text>{{detail.specs[0].price}}</text>
+      <text class="from">起</text>
+    </view>
+    <view class="title">{{detail.name}}</view>
+    <view class="sub">{{detail.desc}}</view>
+  </view>
+
+  <!-- 选规格入口 -->
+  <view class="row" data-action="cart" bindtap="openSpec">
+    <text>选择规格</text>
+    <text class="arrow">共 {{detail.specs.length}} 种规格 ›</text>
+  </view>
+
+  <!-- 图文详情 -->
+  <view class="section-title">商品详情</view>
+  <view class="detail-img" wx:for="{{detail.detailImages}}" wx:key="*this">{{item}}</view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <view class="act-icon" bindtap="goCart">
+      🛒
+      <text wx:if="{{cartCount > 0}}" class="badge">{{cartCount}}</text>
+    </view>
+    <view class="act-btn add" data-action="cart" bindtap="openSpec">加入购物车</view>
+    <view class="act-btn buy" data-action="buy" bindtap="openSpec">立即购买</view>
+  </view>
+
+  <!-- 规格选择弹层 -->
+  <view wx:if="{{showSpec}}" class="mask" bindtap="closeSpec"></view>
+  <view class="spec-popup {{showSpec ? 'show' : ''}}">
+    <view class="spec-head">
+      <text class="spec-title">选择规格</text>
+      <text class="spec-close" bindtap="closeSpec">×</text>
+    </view>
+    <view class="spec-list">
+      <view
+        wx:for="{{detail.specs}}"
+        wx:key="id"
+        class="spec-item {{activeSpecId === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="selectSpec"
+      >{{item.label}} · ¥{{item.price}}</view>
+    </view>
+    <view class="qty-row">
+      <text>数量</text>
+      <view class="stepper">
+        <view class="step-btn" data-delta="-1" bindtap="changeCount">-</view>
+        <text class="step-num">{{count}}</text>
+        <view class="step-btn" data-delta="1" bindtap="changeCount">+</view>
+      </view>
+    </view>
+    <view class="btn-primary confirm-btn" bindtap="confirmSpec">
+      {{specAction === 'buy' ? '立即购买' : '确定'}}
+    </view>
+  </view>
+
+</view>

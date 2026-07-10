@@ -1,0 +1,18 @@
+export default {
+  pages: ["pages/index/index", "pages/cart/cart"],
+  window: {
+    navigationBarBackgroundColor: "#e4393c",
+    navigationBarTextStyle: "white",
+    navigationBarTitleText: "百果园 · 好果报恩",
+    backgroundColor: "#f5f5f5"
+  },
+  tabBar: {
+    color: "#999999",
+    selectedColor: "#e4393c",
+    backgroundColor: "#ffffff",
+    list: [
+      { pagePath: "pages/index/index", text: "首页" },
+      { pagePath: "pages/cart/cart", text: "购物车" }
+    ]
+  }
+};

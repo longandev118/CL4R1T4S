@@ -1,4 +1,5 @@
 const app = getApp();
+const api = require("../../api/goods");
 
 Page({
   data: {
@@ -30,13 +31,16 @@ Page({
     this.refresh();
   },
 
-  onCheckout() {
+  async onCheckout() {
     if (app.globalData.cart.length === 0) {
       wx.showToast({ title: "购物车是空的", icon: "none" });
       return;
     }
-    // 真实项目：调用下单接口 + wx.requestPayment 拉起微信支付
-    wx.showToast({ title: "下单成功（示例）", icon: "success" });
+    // 1. 调用下单接口生成订单
+    const { orderId } = await api.createOrder(app.globalData.cart);
+    // 2. 真实项目：后端返回支付参数后 wx.requestPayment 拉起微信支付
+    //    wx.requestPayment({ ...payParams, success() {...} })
+    wx.showToast({ title: `下单成功 ${orderId}`, icon: "success" });
     app.globalData.cart = [];
     this.refresh();
   }

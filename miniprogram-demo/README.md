@@ -26,14 +26,23 @@ miniprogram-demo/
 ├── app.js          # 小程序入口 + 全局购物车逻辑
 ├── app.json        # 全局配置：页面列表、导航栏、tabBar
 ├── app.wxss        # 全局样式
+├── config.js       # baseURL + useMock 开关（真/假数据切换）
+├── utils/request.js  # Promise 封装的 wx.request
+├── api/goods.js    # 业务接口：banner/商品/详情/下单
+├── mock/data.js    # 本地 mock 数据（useMock=true 时用）
 ├── project.config.json
 ├── sitemap.json
 └── pages/
     ├── index/      # 首页（活动页，复刻截图）
-    │   ├── index.wxml / .wxss / .js / .json
+    ├── detail/     # 商品详情页（轮播图 + 规格选择弹层 + 加购/购买）
     └── cart/       # 购物车页
-        └── cart.wxml / .wxss / .js / .json
 ```
+
+## 接口层怎么用
+
+- `config.js` 里 `useMock: true` → 用 `mock/data.js` 本地数据，**无需后端就能跑**。
+- 有后端后改成 `useMock: false`，并把 `baseURL` 换成你的域名（需在小程序后台配置 request 合法域名）。
+- 页面统一调 `api/goods.js`（如 `api.getGoodsList(tab)`），底层走 `utils/request.js`，切换真假数据对页面无感。
 
 ## 四、代码里做了什么
 

@@ -1,0 +1,13 @@
+{
+  "miniprogramRoot": "dist/",
+  "projectname": "taro-pagoda-demo",
+  "description": "百果园风格电商小程序 - Taro 版本",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false,
+    "es6": false,
+    "postcss": false,
+    "minified": false
+  },
+  "compileType": "miniprogram"
+}
