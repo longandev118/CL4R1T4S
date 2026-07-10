@@ -1,0 +1,62 @@
+<view class="page">
+
+  <!-- 顶部活动 Banner -->
+  <view class="banner">
+    <view class="banner-header">百果园 好果报恩 第40期</view>
+    <view class="banner-card">
+      <view class="banner-title">{{banner.title}}</view>
+      <view class="banner-sub">{{banner.subtitle}}</view>
+      <view class="banner-price-row">
+        <text class="old-price">¥{{banner.oldPrice}}</text>
+        <text class="big-price price">{{banner.price}}</text>
+        <text class="unit">{{banner.unit}}</text>
+      </view>
+      <view class="banner-period">{{banner.period}}</view>
+    </view>
+  </view>
+
+  <!-- 分类 Tab -->
+  <view class="tabs">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="*this"
+      class="tab {{activeTab === index ? 'tab-active' : ''}}"
+      data-index="{{index}}"
+      bindtap="onTabChange"
+    >
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 商品列表 -->
+  <view class="product-list">
+    <view class="product-card" wx:for="{{products}}" wx:key="id">
+      <view class="product-img">图</view>
+      <view class="product-info">
+        <view class="product-name">
+          <text class="product-tag">{{item.tag}}</text>{{item.name}}
+        </view>
+        <view class="product-desc">{{item.desc}}</view>
+        <view class="product-bottom">
+          <text class="price"><text class="rmb">¥</text>{{item.price}}</text>
+          <view
+            class="btn-primary spec-btn"
+            data-product="{{item}}"
+            bindtap="onAddCart"
+          >选规格</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部购物车结算栏 -->
+  <view class="cart-bar">
+    <view class="cart-icon" bindtap="goCart">
+      🛒
+      <text wx:if="{{cartCount > 0}}" class="cart-badge">{{cartCount}}</text>
+    </view>
+    <view class="cart-total">合计 <text class="price">¥{{cartTotal}}</text></view>
+    <view class="btn-primary checkout-btn" bindtap="goCart">结算</view>
+  </view>
+
+</view>

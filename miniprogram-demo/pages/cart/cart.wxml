@@ -1,0 +1,28 @@
+<view class="cart-page">
+
+  <view wx:if="{{cart.length === 0}}" class="empty">购物车还是空的~</view>
+
+  <view wx:else>
+    <view class="cart-item" wx:for="{{cart}}" wx:key="id">
+      <view class="c-img">图</view>
+      <view class="c-info">
+        <view class="c-name">{{item.name}}</view>
+        <view class="c-spec">{{item.spec}}</view>
+        <view class="c-bottom">
+          <text class="price">¥{{item.price}}</text>
+          <view class="stepper">
+            <view class="step-btn" data-id="{{item.id}}" data-delta="-1" bindtap="onStep">-</view>
+            <text class="step-num">{{item.count}}</text>
+            <view class="step-btn" data-id="{{item.id}}" data-delta="1" bindtap="onStep">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="cart-bar">
+    <view class="cart-total">合计 <text class="price">¥{{total}}</text></view>
+    <view class="btn-primary checkout-btn" bindtap="onCheckout">去结算</view>
+  </view>
+
+</view>
